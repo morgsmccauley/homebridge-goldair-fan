@@ -7,6 +7,8 @@ import {
   Characteristic,
 } from 'homebridge';
 
+import TuyaDevice from './TuyaDevice';
+
 export default class GoldairFanAccessory implements AccessoryPlugin {
   public readonly fanService: Service;
   public readonly informationService: Service;
@@ -14,27 +16,37 @@ export default class GoldairFanAccessory implements AccessoryPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
+  private readonly device: TuyaDevice;
+
+  private readonly DPS = {
+    ACTIVE: 1,
+    ROTATION_SPEED: 3,
+    SWING_MODE: 5,
+  };
+
   constructor(
     public readonly log: Logger,
     public readonly config: AccessoryConfig,
     public readonly api: API,
   ) {
-    this.log.debug('Example Accessory Plugin Loaded');
+    this.device = new TuyaDevice(this.config.id, this.config.key);
 
-    // your accessory must have an AccessoryInformation service
     this.informationService = new this.Service.AccessoryInformation()
-      .setCharacteristic(this.Characteristic.Manufacturer, 'Custom Manufacturer')
-      .setCharacteristic(this.Characteristic.Model, 'Custom Model');
+      .setCharacteristic(this.Characteristic.Manufacturer, this.config.manufacturer)
+      .setCharacteristic(this.Characteristic.Model, this.config.model);
 
     this.fanService = new this.Service.Fan(this.config.name);
 
     this.fanService.getCharacteristic(this.Characteristic.On)
       .onGet(async () => {
-        this.log.debug('get on');
-        return 2;
+        return await this.device.get(this.DPS.ACTIVE)
+          ? this.Characteristic.Active.ACTIVE
+          : this.Characteristic.Active.INACTIVE;
       })
       .onSet(async (value) => {
-        this.log.debug('set on: ', value);
+        if (await this.device.get(this.DPS.ACTIVE) !== value) {
+          this.device.set(this.DPS.ACTIVE, value);
+        }
       });
 
     this.fanService.getCharacteristic(this.Characteristic.RotationSpeed)
@@ -43,22 +55,23 @@ export default class GoldairFanAccessory implements AccessoryPlugin {
         maxValue: 3,
         minStep: 1,
       })
-      .onGet(async () => {
-        this.log.debug('get rotation');
-        return 1;
+      .onGet(() => {
+        return this.device.get(this.DPS.ROTATION_SPEED);
       })
-      .onSet(async (value) => {
-        this.log.debug('set rotation: ', value);
+      .onSet((value) => {
+        if (value !== 0) {
+          this.device.set(this.DPS.ROTATION_SPEED, value);
+        }
       });
 
     this.fanService.getCharacteristic(this.Characteristic.SwingMode)
       .onGet(async () => {
-        this.log.debug('get swing');
-        return false;
+        return await this.device.get(this.DPS.SWING_MODE)
+          ? this.Characteristic.SwingMode.SWING_ENABLED
+          : this.Characteristic.SwingMode.SWING_DISABLED;
       })
-      .onSet(async (value) => {
-        this.log.debug('set swing: ', value);
-
+      .onSet((value) => {
+        this.device.set(this.DPS.SWING_MODE, !!value);
       });
   }
 
