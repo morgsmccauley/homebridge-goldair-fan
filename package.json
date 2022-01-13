@@ -1,5 +1,4 @@
 {
-  "private": true,
   "displayName": "Homebridge Goldair Fan",
   "name": "homebridge-goldair-fan",
   "version": "1.0.0",
