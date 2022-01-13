@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge Goldair Fan",
-  "name": "homebridge-goldair-fan",
-  "version": "1.0.0",
+  "name": "homebridge-goldair-tuya-fan",
+  "version": "1.0.1",
   "description": "A short description about what your plugin does.",
   "license": "Apache-2.0",
   "repository": {
@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "dataloader": "^2.0.0",
-    "tuyapi": "github:codetheweb/tuyapi"
+    "tuyapi": "^7.2.0"
   },
   "devDependencies": {
     "@types/node": "^16.10.9",
