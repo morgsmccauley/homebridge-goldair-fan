@@ -22,6 +22,7 @@ export default class GoldairFanAccessory implements AccessoryPlugin {
     ACTIVE: 1,
     ROTATION_SPEED: 3,
     SWING_MODE: 5,
+    DISPLAY_LIGHT: 15,
   };
 
   constructor(
@@ -69,6 +70,17 @@ export default class GoldairFanAccessory implements AccessoryPlugin {
         return await this.device.get(this.DPS.SWING_MODE)
           ? this.Characteristic.SwingMode.SWING_ENABLED
           : this.Characteristic.SwingMode.SWING_DISABLED;
+      })
+      .onSet((value) => {
+        this.device.set(this.DPS.SWING_MODE, !!value);
+      });
+
+    // use lock to handle display light
+    this.fanService.getCharacteristic(this.Characteristic.LockPhysicalControls)
+      .onGet(async () => {
+        return await this.device.get(this.DPS.DISPLAY_LIGHT)
+          ? this.Characteristic.LockPhysicalControls.CONTROL_LOCK_ENABLED
+          : this.Characteristic.LockPhysicalControls.CONTROL_LOCK_DISABLED;
       })
       .onSet((value) => {
         this.device.set(this.DPS.SWING_MODE, !!value);

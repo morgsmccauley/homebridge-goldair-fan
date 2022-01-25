@@ -27,7 +27,6 @@ export type Device = {
 export default class TuyaDevice {
   private device: Device;
   private initialiseDevicePromise: Promise<void>;
-  private getStatusPromise: Promise<DeviceStatus> | null = null;
   private deviceStatusLoader: Dataloader<number, CharacteristicValue>;
 
   constructor(
