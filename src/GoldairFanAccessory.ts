@@ -83,7 +83,7 @@ export default class GoldairFanAccessory implements AccessoryPlugin {
           : this.Characteristic.LockPhysicalControls.CONTROL_LOCK_DISABLED;
       })
       .onSet((value) => {
-        this.device.set(this.DPS.SWING_MODE, !!value);
+        this.device.set(this.DPS.DISPLAY_LIGHT, !!value);
       });
   }
 
